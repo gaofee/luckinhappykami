@@ -55,7 +55,7 @@ router.use('/admin', authenticate);
 router.post('/admin/change-password', changePassword);
 
 // 卡密相关路由
-router.post('/verify', verifyCard); // 卡密验证（公开）
+router.route('/verify').get(verifyCard).post(verifyCard); // 卡密验证（公开）
 router.post('/admin/cards/generate', generateCards); // 生成卡密
 router.get('/admin/cards', getCards); // 获取卡密列表
 router.delete('/admin/cards/:id', deleteCard); // 删除卡密
