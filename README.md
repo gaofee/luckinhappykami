@@ -34,6 +34,15 @@
 - **易维护**：现代化技术栈 + 完整测试覆盖
 - **易扩展**：模块化设计 + RESTful API
 
+### ⚠️ 重要声明
+**本项目仅用于学习、研究和合法商业用途。严禁用于任何违法违规活动，包括但不限于：**
+- 盗版软件分发
+- 非法数字商品销售
+- 侵犯知识产权行为
+- 任何违反法律法规的活动
+
+**使用者需自行承担使用本项目的法律责任。**
+
 [English](#english) | [中文](#中文)
 
 ## English
@@ -69,6 +78,15 @@
 - Visual chart display
 - API call statistics
 - Complete usage records
+
+### ⚠️ Important Disclaimer
+**This project is intended for educational, research, and legitimate commercial purposes only. It is strictly prohibited for any illegal or unlawful activities, including but not limited to:**
+- Pirated software distribution
+- Illegal digital goods sales
+- Intellectual property infringement
+- Any activities that violate laws and regulations
+
+**Users are solely responsible for the legal consequences of using this project.**
 
 ### 🚀 Quick Start
 
