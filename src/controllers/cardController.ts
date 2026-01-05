@@ -14,7 +14,7 @@ function generateCardKey(): string {
 
 // 加密卡密密钥 - 完全匹配PHP版本
 function encryptCardKey(key: string): string {
-  const salt = 'xiaoxiaoguai_card_system_2024';
+  const salt = 'luckinhappykami2026';
   return createHash('sha1').update(key + salt).digest('hex');
 }
 

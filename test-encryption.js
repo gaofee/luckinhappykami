@@ -3,7 +3,7 @@ const { createHash } = require('crypto');
 
 // PHP版本的加密函数
 function encryptCardKey(key) {
-  const salt = 'xiaoxiaoguai_card_system_2024';
+  const salt = 'luckinhappykami2026';
   return createHash('sha1').update(key + salt).digest('hex');
 }
 
