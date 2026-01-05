@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>登录测试</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 40px; }
+        .result { margin-top: 20px; padding: 10px; border: 1px solid #ccc; background: #f9f9f9; }
+        .success { border-color: #67c23a; background: #f0f9ff; }
+        .error { border-color: #f56c6c; background: #fef0f0; }
+    </style>
+</head>
+<body>
+    <h1>LuckinHappy卡密系统 - 登录测试</h1>
+
+    <div>
+        <h3>默认管理员账号：</h3>
+        <p>用户名: <strong>admin</strong></p>
+        <p>密码: <strong>admin123</strong></p>
+    </div>
+
+    <div>
+        <h3>登录测试：</h3>
+        <button onclick="testLogin()">测试登录API</button>
+        <button onclick="testAdminPage()">访问管理页面</button>
+        <button onclick="clearToken()">清除登录状态</button>
+    </div>
+
+    <div id="result" class="result">
+        点击按钮开始测试...
+    </div>
+
+    <script>
+        async function testLogin() {
+            const result = document.getElementById('result');
+
+            try {
+                result.className = 'result';
+                result.textContent = '正在测试登录...';
+
+                const response = await fetch('/api/admin/login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        username: 'admin',
+                        password: 'admin123'
+                    })
+                });
+
+                const data = await response.json();
+
+                if (data.code === 0) {
+                    result.className = 'result success';
+                    result.innerHTML = `
+                        ✅ 登录成功！<br>
+                        Token: ${data.data.token.substring(0, 50)}...<br>
+                        用户: ${data.data.user.username}<br>
+                        <button onclick="saveToken('${data.data.token}')">保存Token到本地</button>
+                    `;
+                } else {
+                    result.className = 'result error';
+                    result.textContent = `❌ 登录失败: ${data.message}`;
+                }
+            } catch (error) {
+                result.className = 'result error';
+                result.textContent = `❌ 网络错误: ${error.message}`;
+            }
+        }
+
+        function saveToken(token) {
+            localStorage.setItem('admin_token', token);
+            const result = document.getElementById('result');
+            result.innerHTML += '<br>✅ Token已保存到本地存储';
+        }
+
+        function testAdminPage() {
+            window.open('/admin/cards', '_blank');
+        }
+
+        function clearToken() {
+            localStorage.removeItem('admin_token');
+            const result = document.getElementById('result');
+            result.className = 'result';
+            result.textContent = '✅ 已清除登录状态';
+        }
+    </script>
+</body>
+</html>
