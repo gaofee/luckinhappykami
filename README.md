@@ -7,6 +7,33 @@
 [![SQLite](https://img.shields.io/badge/SQLite-3-orange.svg)](https://www.sqlite.org/)
 [![License](https://img.shields.io/github/license/gaofee/luckinhappykami)](https://github.com/gaofee/luckinhappykami/blob/main/LICENSE)
 
+## 📋 项目简介
+
+**LuckinHappy卡密验证系统** 是一个功能强大、安全可靠的卡密验证解决方案，专为软件开发者、游戏开发者以及需要数字商品验证服务的企业打造。
+
+### 🎯 核心功能
+- **卡密生成与管理**：批量生成、导入导出、状态管理
+- **实时验证**：支持多种验证方式（时间卡、次数卡）
+- **设备绑定**：防止卡密被盗用和滥用
+- **多API支持**：为不同应用提供独立的API密钥
+- **统计分析**：详细的使用统计和数据分析
+- **管理后台**：直观的Web管理界面
+
+### 💡 应用场景
+- 软件激活验证
+- 游戏充值卡验证
+- 会员服务验证
+- 数字商品销售
+- SaaS服务订阅验证
+- 企业内部授权管理
+
+### 🌟 核心优势
+- **高安全性**：bcrypt加密 + JWT认证 + 设备绑定
+- **高性能**：异步处理 + 数据库优化 + 缓存策略
+- **易部署**：一键安装脚本 + 详细部署文档
+- **易维护**：现代化技术栈 + 完整测试覆盖
+- **易扩展**：模块化设计 + RESTful API
+
 [English](#english) | [中文](#中文)
 
 ## English
@@ -401,6 +428,9 @@ chmod 755 uploads
 This project is licensed under the MIT License. See [LICENSE](LICENSE) file for details.
 
 ### ⭐ Acknowledgments
+
+Special thanks to the original project:
+- **[xiaoxiaoguai-yyds/xxgkami](https://github.com/xiaoxiaoguai-yyds/xxgkami)** - Original PHP implementation that inspired this TypeScript rewrite
 
 Thanks to all developers who contributed to this project!
 
@@ -802,6 +832,9 @@ chmod 755 uploads
 本项目采用 MIT 协议开源，详见 [LICENSE](LICENSE) 文件。
 
 ### ⭐ 致谢
+
+特别感谢原始项目：
+- **[xiaoxiaoguai-yyds/xxgkami](https://github.com/xiaoxiaoguai-yyds/xxgkami)** - 原始PHP实现版本，为本TypeScript重构提供了灵感
 
 感谢所有为本项目做出贡献的开发者！
 
