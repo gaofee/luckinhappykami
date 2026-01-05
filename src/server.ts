@@ -43,6 +43,14 @@ app.use(cors({
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
+import apiRoutes from './routes';
+
+console.log('API routes loaded:', typeof apiRoutes);
+
+// API路由 (必须在静态文件服务之前)
+app.use('/api', apiRoutes);
+console.log('API routes registered at /api');
+
 // 静态文件服务
 app.use(express.static('dist/public'));
 
@@ -58,16 +66,19 @@ if (config.server.nodeEnv === 'development') {
     res.sendFile('index.html', { root: 'dist/public' });
   });
 
-  // SPA路由处理
-  app.get('*', (req, res) => {
-    res.sendFile('index.html', { root: 'dist/public' });
-  });
+  // SPA路由处理 - 临时禁用以测试API
+  // app.get('*', (req, res) => {
+  //   // 排除API路由
+  //   if (req.path.startsWith('/api')) {
+  //     return res.status(404).json({ code: 404, message: 'API endpoint not found' });
+  //   }
+  //   // 排除静态资源
+  //   if (req.path.match(/\.(js|css|png|jpg|jpeg|gif|ico|svg|woff|woff2|ttf|eot)$/)) {
+  //     return res.status(404).send('Static file not found');
+  //   }
+  //   res.sendFile('index.html', { root: 'dist/public' });
+  // });
 }
-
-import apiRoutes from './routes';
-
-// API路由
-app.use('/api', apiRoutes);
 
 // 错误处理中间件
 app.use(errorHandler);
