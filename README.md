@@ -43,7 +43,79 @@
 
 **使用者需自行承担使用本项目的法律责任。**
 
-[English](#english) | [中文](#中文)
+---
+
+## 🚀 快速开始
+
+#### 选项1：自动化安装（推荐）
+
+为了获得最简单的设置体验，请使用我们的自动化安装脚本：
+
+```bash
+# 1. 下载或克隆项目
+git clone https://github.com/gaofee/luckinhappykami.git
+cd luckinhappykami
+
+# 2. 运行安装脚本
+./install.sh
+```
+
+该脚本将自动执行：
+- ✅ 检查系统要求
+- ✅ 自动安装依赖
+- ✅ 配置环境变量
+- ✅ 初始化数据库
+- ✅ 构建应用程序
+- ✅ 设置PM2进程管理器（可选）
+- ✅ 创建启动脚本
+
+#### 选项2：手动安装
+
+如果您偏好手动安装：
+
+##### 环境要求
+```bash
+Node.js >= 18.0.0
+npm >= 8.0.0
+```
+
+##### 安装步骤
+
+1. 克隆项目
+```bash
+git clone https://github.com/gaofee/luckinhappykami.git
+cd luckinhappykami
+```
+
+2. 安装依赖
+```bash
+npm install
+```
+
+3. 配置环境变量
+```bash
+cp .env.example .env
+# 编辑 .env 文件，配置数据库路径和其他设置
+```
+
+4. 初始化数据库
+```bash
+npm run init-db
+```
+
+5. 启动开发服务器
+```bash
+npm run dev
+```
+
+6. 访问应用
+```
+http://localhost:3000
+```
+
+
+
+---
 
 ## English
 
@@ -156,7 +228,56 @@ npm run dev
 http://localhost:3000
 ```
 
-### 📁 Project Structure
+### 📚 API Documentation
+
+#### Card Verification API
+
+##### POST /api/verify
+Verify card key and perform device binding
+
+**Request Parameters:**
+```json
+{
+  "card_key": "card secret key",
+  "device_id": "device unique identifier"
+}
+```
+
+**Response Example:**
+```json
+{
+  "code": 0,
+  "message": "Verification successful",
+  "data": {
+    "card_key": "xxx",
+    "status": 1,
+    "use_time": "2024-01-01 12:00:00",
+    "expire_time": "2024-01-31 12:00:00",
+    "card_type": "time",
+    "duration": 30,
+    "device_id": "device123",
+    "allow_reverify": true
+  }
+}
+```
+
+##### GET /api/verify (Alternative)
+```
+GET /api/verify?api_key=your-api-key&card_key=xxx&device_id=device123
+```
+
+#### Admin APIs
+
+##### POST /admin/login
+Admin login
+
+##### GET /admin/cards
+Get card list
+
+##### POST /admin/cards/generate
+Batch generate cards
+
+###  Project Structure
 
 ```
 luckinhappykami/
