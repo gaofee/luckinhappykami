@@ -115,6 +115,152 @@ http://localhost:3000
 
 ---
 
+## 🚀 宝塔面板部署指南
+
+### 前置要求
+- 已安装宝塔面板的服务器
+- 域名（可选）
+- SSH访问权限
+
+### 第一步：服务器准备
+1. 登录宝塔面板
+2. 进入"软件商店" → "运行环境"
+3. 安装 Node.js 18+ 和 PM2
+4. 安装 Nginx（如未安装）
+
+### 第二步：代码部署
+1. 通过FTP上传项目文件或使用git克隆
+```bash
+cd /www/wwwroot
+git clone https://github.com/gaofee/luckinhappykami.git
+cd luckinhappykami
+```
+
+2. 安装依赖
+```bash
+npm install
+```
+
+3. 配置环境变量
+```bash
+cp .env.example .env
+# 编辑 .env 文件配置您的设置
+```
+
+4. 初始化数据库
+```bash
+npm run init-db
+```
+
+5. 构建应用
+```bash
+npm run build
+```
+
+### 第三步：PM2进程管理
+1. 安装PM2（如宝塔未安装）
+```bash
+npm install -g pm2
+```
+
+2. 创建PM2配置文件 `ecosystem.config.js`
+```javascript
+module.exports = {
+  apps: [{
+    name: 'luckinhappykami',
+    script: 'dist/server.js',
+    instances: 1,
+    autorestart: true,
+    watch: false,
+    max_memory_restart: '1G',
+    env: {
+      NODE_ENV: 'production',
+      PORT: 3001
+    }
+  }]
+};
+```
+
+3. 使用PM2启动应用
+```bash
+pm2 start ecosystem.config.js
+pm2 save
+pm2 startup
+```
+
+### 第四步：Nginx配置
+1. 在宝塔面板进入"网站" → "设置"
+2. 添加网站配置或修改现有配置
+3. 配置反向代理：
+
+```
+# Nginx配置
+server {
+    listen 80;
+    server_name your-domain.com;
+    root /www/wwwroot/luckinhappykami/dist/public;
+    index index.html;
+
+    # 前端路由
+    location / {
+        try_files $uri $uri/ /index.html;
+    }
+
+    # API代理
+    location /api {
+        proxy_pass http://127.0.0.1:3001;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+    }
+
+    # 静态文件
+    location ~* \.(js|css|png|jpg|jpeg|gif|ico|svg)$ {
+        expires 1y;
+        add_header Cache-Control "public, immutable";
+    }
+}
+```
+
+4. SSL证书配置（推荐）
+   - 在宝塔面板进入"SSL" → "Let's Encrypt"
+   - 申请免费SSL证书
+
+### 第五步：数据库和文件权限
+1. 确保SQLite数据库文件权限正确
+```bash
+chmod 644 data/luckinhappykami.db
+```
+
+2. 确保上传目录有写入权限
+```bash
+chmod 755 uploads
+```
+
+### 第六步：防火墙配置
+1. 在宝塔面板进入"安全" → "防火墙"
+2. 开放80、443端口（HTTP/HTTPS）
+3. 确保3001端口仅本地访问
+
+### 第七步：备份配置
+1. 设置定期数据库备份
+2. 配置日志轮转
+3. 设置监控告警
+
+### 第八步：测试验证
+1. 访问域名：`http://your-domain.com`
+2. 测试API接口
+3. 运行测试脚本验证功能
+
+### 故障排除
+- **端口冲突**：检查80、443、3001端口是否可用
+- **权限问题**：确保文件权限正确
+- **数据库错误**：检查数据库文件路径和权限
+- **内存问题**：监控PM2日志并调整内存限制
+
+---
+
 ## English Documentation
 
 ### ✨ Features
