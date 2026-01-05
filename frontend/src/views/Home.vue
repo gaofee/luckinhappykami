@@ -226,7 +226,7 @@
             </div>
           </template>
           <div class="api-url">
-            <p><strong>API接口地址：</strong> <code>https://your-domain.com/api/verify.php</code></p>
+            <p><strong>API接口地址：</strong> <code>https://your-domain.com/api/verify</code></p>
           </div>
         </el-card>
 
@@ -240,7 +240,7 @@
           </template>
           <div class="api-example">
             <div class="code-block">
-              <div class="code-header">POST /api/verify.php</div>
+              <div class="code-header">POST /api/verify</div>
               <pre><code>Content-Type: application/json
 X-API-KEY: your_api_key_here
 
@@ -262,8 +262,8 @@ X-API-KEY: your_api_key_here
           </template>
           <div class="api-example">
             <div class="code-block">
-              <div class="code-header">GET /api/verify.php</div>
-              <pre><code>GET /api/verify.php?api_key=your_api_key_here&card_key=您的卡密&device_id=设备唯一标识</code></pre>
+              <div class="code-header">GET /api/verify</div>
+              <pre><code>GET /api/verify?api_key=your_api_key_here&card_key=您的卡密&device_id=设备唯一标识</code></pre>
             </div>
           </div>
         </el-card>
