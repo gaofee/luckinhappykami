@@ -115,6 +115,89 @@ http://localhost:3000
 
 ---
 
+## 🐳 Docker容器部署（推荐）
+
+### 为什么选择Docker？
+- **无需安装Node.js**：容器内已包含完整运行环境
+- **环境一致性**：避免版本冲突和依赖问题
+- **快速部署**：一键启动，自动化配置
+- **易于维护**：标准化部署流程
+
+### 前置要求
+- Docker >= 20.0
+- Docker Compose >= 2.0
+
+### 快速启动
+```bash
+# 1. 克隆项目
+git clone https://github.com/gaofee/luckinhappykami.git
+cd luckinhappykami
+
+# 2. 配置环境变量
+cp .env.example .env
+# 编辑 .env 文件，修改数据库路径和其他配置
+
+# 3. 启动服务（仅应用）
+docker-compose up -d luckinhappykami
+
+# 或者启动完整服务（包含Nginx反向代理）
+docker-compose up -d
+
+# 4. 初始化数据库
+docker-compose exec luckinhappykami npm run init-db
+```
+
+### 服务说明
+- **luckinhappykami**：主应用服务（端口3000）
+- **nginx**：反向代理（端口80/443，可选）
+- **db**：数据库数据持久化（可选）
+
+### 访问地址
+```
+前端界面：http://localhost
+API接口：http://localhost/api
+管理后台：http://localhost/admin
+```
+
+### 常用命令
+```bash
+# 查看服务状态
+docker-compose ps
+
+# 查看日志
+docker-compose logs luckinhappykami
+docker-compose logs nginx
+
+# 重启服务
+docker-compose restart luckinhappykami
+
+# 停止服务
+docker-compose down
+
+# 更新部署
+docker-compose pull && docker-compose up -d
+```
+
+### 自定义配置
+编辑 `docker-compose.yml` 文件修改：
+```yaml
+environment:
+  - PORT=3000                    # 修改端口
+  - DB_PATH=./data/app.db       # 修改数据库路径
+  - JWT_SECRET=your-secret      # 修改JWT密钥
+```
+
+### 生产部署
+```bash
+# 使用生产环境配置
+docker-compose -f docker-compose.yml up -d
+
+# 启用SSL（需要配置ssl证书）
+# 将证书文件放入 ./ssl 目录
+```
+
+---
+
 ## 📚 API接口文档
 
 #### 卡密验证接口

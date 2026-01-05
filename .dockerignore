@@ -1,0 +1,51 @@
+# Dependencies
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Development files
+.git/
+.gitignore
+README.md
+.env.example
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Logs
+logs/
+*.log
+
+# Runtime data
+pids/
+*.pid
+*.seed
+*.pid.lock
+
+# Coverage
+coverage/
+.nyc_output/
+
+# Build artifacts (will be built inside container)
+dist/
+
+# Test files
+test-*.js
+test-*.html
+
+# Development scripts
+install.sh
+ecosystem.config.js
+nginx.conf.example
+
+# Temporary files
+*.tmp
+*.temp
