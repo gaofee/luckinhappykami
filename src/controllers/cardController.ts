@@ -749,3 +749,53 @@ export const unbindDevice = async (req: Request, res: Response) => {
     });
   }
 };
+
+// 更新设备ID
+export const updateDevice = async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params;
+    const { device_id } = req.body;
+
+    if (!device_id || device_id.trim() === '') {
+      return res.status(400).json({
+        code: 400,
+        message: '设备ID不能为空',
+      });
+    }
+
+    const card = await dbGet('SELECT * FROM cards WHERE id = ?', [id]);
+
+    if (!card) {
+      return res.status(404).json({
+        code: 404,
+        message: '卡密不存在',
+      });
+    }
+
+    // 检查是否已有其他卡密绑定了这个设备ID
+    const existingCard = await dbGet('SELECT id, card_key FROM cards WHERE device_id = ? AND id != ?', [device_id.trim(), id]);
+    if (existingCard) {
+      return res.status(400).json({
+        code: 400,
+        message: `设备ID已被其他卡密绑定: ${existingCard.card_key}`,
+      });
+    }
+
+    await dbRun('UPDATE cards SET device_id = ? WHERE id = ?', [device_id.trim(), id]);
+
+    res.json({
+      code: 0,
+      message: '设备ID更新成功',
+      data: {
+        device_id: device_id.trim()
+      }
+    });
+
+  } catch (error) {
+    console.error('更新设备ID失败:', error);
+    res.status(500).json({
+      code: 500,
+      message: '服务器内部错误',
+    });
+  }
+};

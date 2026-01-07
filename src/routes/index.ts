@@ -9,7 +9,8 @@ import {
   enableCard,
   extendCard,
   addCardCount,
-  unbindDevice
+  unbindDevice,
+  updateDevice
 } from '../controllers/cardController';
 import {
   getApiKeys,
@@ -65,6 +66,7 @@ router.post('/admin/cards/:id/enable', enableCard); // 启用卡密
 router.post('/admin/cards/:id/extend', extendCard); // 续期卡密
 router.post('/admin/cards/:id/add-count', addCardCount); // 增加卡密次数
 router.post('/admin/cards/:id/unbind', unbindDevice); // 解绑设备
+router.post('/admin/cards/:id/update-device', updateDevice); // 更新设备ID
 
 // API密钥管理路由
 router.get('/admin/apis', getApiKeys); // 获取API密钥列表

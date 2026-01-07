@@ -76,10 +76,11 @@
               <span>{{ scope.row.card_key }}</span>
               <el-button
                 size="small"
-                type="text"
+                type="primary"
                 @click="copyCardKey(scope.row.card_key)"
+                title="复制卡密"
               >
-                <i-ep-copy-document />
+                复制
               </el-button>
             </div>
           </template>
@@ -99,28 +100,27 @@
         <el-table-column label="有效期/次数" min-width="150">
           <template #default="scope">
             <div v-if="scope.row.card_type === 'time'">
-              {{ scope.row.duration }}天
+              <div v-if="scope.row.expire_time">
+                {{ calculateRemainingDays(scope.row.expire_time) }}天
+                <span class="original-duration">(原{{ scope.row.duration }}天)</span>
+              </div>
+              <div v-else>
+                {{ scope.row.duration }}天
+              </div>
             </div>
             <div v-else>
               {{ scope.row.remaining_count }}/{{ scope.row.total_count }}次
             </div>
           </template>
         </el-table-column>
-        <el-table-column prop="device_id" label="绑定设备" min-width="240">
+        <el-table-column prop="device_id" label="绑定设备" min-width="200">
           <template #default="scope">
             <div v-if="scope.row.device_id" class="device-cell">
               <span :title="scope.row.device_id">{{ maskDeviceId(scope.row.device_id) }}</span>
-              <el-button
-                v-if="scope.row.status === 1"
-                size="small"
-                type="text"
-                @click="unbindDevice(scope.row)"
-                style="margin-left: 5px"
-              >
-                <i-ep-unlock />
-              </el-button>
             </div>
-            <span v-else class="no-device">-</span>
+            <div v-else class="no-device">
+              -
+            </div>
           </template>
         </el-table-column>
         <el-table-column prop="use_time" label="使用时间" min-width="160">
@@ -765,6 +765,21 @@ const maskDeviceId = (deviceId: string) => {
   return deviceId.substring(0, 6) + '...' + deviceId.substring(deviceId.length - 4)
 }
 
+const calculateRemainingDays = (expireTimeStr: string) => {
+  const expireTime = new Date(expireTimeStr)
+  const now = new Date()
+  const diffTime = expireTime.getTime() - now.getTime()
+  const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24))
+
+  if (diffDays < 0) {
+    return '已过期'
+  } else if (diffDays === 0) {
+    return '今日到期'
+  } else {
+    return diffDays.toString()
+  }
+}
+
 // 加载系统设置
 const loadSettings = async () => {
   try {
@@ -867,4 +882,13 @@ onMounted(() => {
 .no-device {
   color: #C0C4CC;
 }
+
+.device-edit-cell {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
 </style>
+  flex-wrap: wrap;
+  flex-wrap: wrap;
+

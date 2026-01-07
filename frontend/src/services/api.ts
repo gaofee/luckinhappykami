@@ -84,6 +84,9 @@ export const cardAPI = {
 
   unbindDevice: (id: number) =>
     api.post(`/admin/cards/${id}/unbind`),
+
+  updateDevice: (id: number, deviceId: string) =>
+    api.post(`/admin/cards/${id}/update-device`, { device_id: deviceId }),
 };
 
 export const apiKeyAPI = {
