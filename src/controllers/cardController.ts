@@ -104,6 +104,19 @@ export const verifyCard = async (req: Request, res: Response) => {
       });
     }
 
+    // 检查时间卡密是否过期
+    if (card.card_type == 'time' && card.expire_time) {
+      const now = new Date();
+      const expireTime = new Date(card.expire_time);
+      if (now > expireTime) {
+        return res.status(403).json({
+          code: 1,
+          message: '此卡密已过期',
+          data: {}
+        });
+      }
+    }
+
     // 检查卡密是否被禁用
     if (card.status == 2) {
       return res.status(403).json({

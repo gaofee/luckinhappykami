@@ -101,8 +101,8 @@
           <template #default="scope">
             <div v-if="scope.row.card_type === 'time'">
               <div v-if="scope.row.expire_time">
-                {{ calculateRemainingDays(scope.row.expire_time) }}天
-                <span class="original-duration">(原{{ scope.row.duration }}天)</span>
+                {{ calculateRemainingDays(scope.row.expire_time) }}
+                <span class="original-duration">{{ calculateRemainingDays(scope.row.expire_time) === '已过期' ? '（原' + scope.row.duration + '天）' : '天（原' + scope.row.duration + '天）' }}</span>
               </div>
               <div v-else>
                 {{ scope.row.duration }}天
