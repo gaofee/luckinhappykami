@@ -10,7 +10,14 @@
 ## 📋 项目简介
 
 **LuckinHappy卡密验证系统** 是一个功能强大、安全可靠的卡密验证解决方案，专为软件开发者、游戏开发者以及需要数字商品验证服务的企业打造。
-
+![alt text](image.png)
+![alt text](image-1.png)
+![alt text](image-2.png)
+![alt text](image-3.png)
+![alt text](image-4.png)
+![alt text](image-5.png)
+![alt text](image-6.png)
+![alt text](image-7.png)
 ### 🎯 核心功能
 - **卡密生成与管理**：批量生成、导入导出、状态管理
 - **实时验证**：支持多种验证方式（时间卡、次数卡）
