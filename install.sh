@@ -16,6 +16,8 @@ NC='\033[0m' # No Color
 PROJECT_NAME="LuckinHappy Card Verification System"
 NODE_MIN_VERSION="18"
 REQUIRED_TOOLS=("node" "npm")
+NON_INTERACTIVE=false
+SKIP_PM2=false
 
 # Functions
 print_header() {
@@ -52,9 +54,18 @@ check_command() {
 
 get_node_version() {
     if check_command "node"; then
-        node -v | sed 's/v//' | cut -d '.' -f 1
+        # Get full version for better compatibility check
+        node -v | sed 's/v//' | awk -F. '{printf "%d%03d%03d", $1, $2, $3}'
     else
-        echo "0"
+        echo "000000"
+    fi
+}
+
+get_node_version_string() {
+    if check_command "node"; then
+        node -v | sed 's/v//'
+    else
+        echo "0.0.0"
     fi
 }
 
@@ -77,12 +88,14 @@ main() {
     fi
 
     NODE_VERSION=$(get_node_version)
-    if [ "$NODE_VERSION" -lt "$NODE_MIN_VERSION" ]; then
-        print_error "Node.js version $NODE_VERSION is too old. Please upgrade to Node.js $NODE_MIN_VERSION+"
+    NODE_VERSION_STR=$(get_node_version_string)
+    NODE_MIN_COMPARE=$((NODE_MIN_VERSION * 1000))
+    if [ "$NODE_VERSION" -lt "$NODE_MIN_COMPARE" ]; then
+        print_error "Node.js version $NODE_VERSION_STR is too old. Please upgrade to Node.js $NODE_MIN_VERSION+"
         exit 1
     fi
 
-    print_success "Node.js v$NODE_VERSION found"
+    print_success "Node.js $NODE_VERSION_STR found"
 
     # Check npm
     if ! check_command "npm"; then
@@ -97,6 +110,17 @@ main() {
     if [ ! -f "package.json" ]; then
         print_error "package.json not found. Please run this script from the project root directory."
         exit 1
+    fi
+
+    # Check available disk space (minimum 1GB)
+    DISK_SPACE=$(df -k . | tail -1 | awk '{print $4}')
+    if [ "$DISK_SPACE" -lt 1048576 ]; then  # 1GB in KB
+        print_warning "Low disk space detected. At least 1GB free space recommended."
+    fi
+
+    # Check if required ports are available
+    if lsof -Pi :3000 -sTCP:LISTEN -t >/dev/null 2>&1; then
+        print_warning "Port 3000 is already in use. The application may not start properly."
     fi
 
     print_success "Project files verified"
@@ -119,11 +143,30 @@ main() {
         echo "Creating .env file from template..."
         cp .env.example .env
 
-        # Generate a random JWT secret
-        JWT_SECRET=$(openssl rand -hex 32 2>/dev/null || head -c 32 /dev/urandom | xxd -p -c 32)
-        if [ -n "$JWT_SECRET" ]; then
-            # Replace JWT secret in .env file
-            sed -i.bak "s/your-super-secret-jwt-key-change-this-in-production/$JWT_SECRET/" .env && rm .env.bak 2>/dev/null
+        # Generate a random JWT secret (cross-platform)
+        JWT_SECRET=""
+        if check_command "openssl"; then
+            JWT_SECRET=$(openssl rand -hex 32 2>/dev/null)
+        fi
+
+        if [ -z "$JWT_SECRET" ] && check_command "head" && check_command "xxd"; then
+            JWT_SECRET=$(head -c 32 /dev/urandom 2>/dev/null | xxd -p -c 64 2>/dev/null | cut -c1-64)
+        fi
+
+        if [ -z "$JWT_SECRET" ]; then
+            # Fallback: generate using Node.js if available
+            JWT_SECRET=$(node -e "console.log(require('crypto').randomBytes(32).toString('hex'))" 2>/dev/null)
+        fi
+
+        if [ -n "$JWT_SECRET" ] && [ ${#JWT_SECRET} -eq 64 ]; then
+            # Cross-platform sed replacement
+            if [[ "$OSTYPE" == "darwin"* ]]; then
+                # macOS
+                sed -i '' "s/your-super-secret-jwt-key-change-this-in-production/$JWT_SECRET/" .env
+            else
+                # Linux and others
+                sed -i "s/your-super-secret-jwt-key-change-this-in-production/$JWT_SECRET/" .env
+            fi
             print_success "Generated secure JWT secret"
         else
             print_warning "Could not generate random JWT secret. Please set JWT_SECRET manually in .env"
@@ -155,20 +198,33 @@ main() {
     # Step 6: Set up PM2 (optional)
     print_step 6 "Setting up PM2 process manager..."
 
-    if check_command "pm2"; then
+    if [ "$SKIP_PM2" = true ]; then
+        print_warning "Skipping PM2 setup as requested"
+    elif check_command "pm2"; then
         echo "PM2 is already installed"
 
-        # Ask user if they want to start with PM2
-        echo ""
-        echo "Do you want to start the application with PM2? (y/n)"
-        read -r response
-        if [[ "$response" =~ ^([yY][eE][sS]|[yY])$ ]]; then
+        if [ "$NON_INTERACTIVE" = true ]; then
+            # Non-interactive mode: automatically start with PM2
             if pm2 start ecosystem.config.js 2>/dev/null; then
                 pm2 save
-                print_success "Application started with PM2"
+                print_success "Application started with PM2 (non-interactive mode)"
                 PM2_SETUP=true
             else
                 print_warning "Failed to start with PM2, you can start manually"
+            fi
+        else
+            # Interactive mode: ask user
+            echo ""
+            echo "Do you want to start the application with PM2? (y/n)"
+            read -r response
+            if [[ "$response" =~ ^([yY][eE][sS]|[yY])$ ]]; then
+                if pm2 start ecosystem.config.js 2>/dev/null; then
+                    pm2 save
+                    print_success "Application started with PM2"
+                    PM2_SETUP=true
+                else
+                    print_warning "Failed to start with PM2, you can start manually"
+                fi
             fi
         fi
     else
@@ -250,10 +306,43 @@ EOF
     fi
 }
 
+# Parse command line arguments
+while [[ $# -gt 0 ]]; do
+    case $1 in
+        --non-interactive|-y)
+            NON_INTERACTIVE=true
+            shift
+            ;;
+        --skip-pm2)
+            SKIP_PM2=true
+            shift
+            ;;
+        --help|-h)
+            echo "Usage: $0 [OPTIONS]"
+            echo ""
+            echo "Options:"
+            echo "  --non-interactive, -y    Run in non-interactive mode (skip prompts)"
+            echo "  --skip-pm2              Skip PM2 setup even if available"
+            echo "  --help, -h              Show this help message"
+            echo ""
+            echo "Examples:"
+            echo "  $0                      Interactive installation"
+            echo "  $0 --non-interactive    Non-interactive installation"
+            echo "  $0 --skip-pm2           Skip PM2 setup"
+            exit 0
+            ;;
+        *)
+            print_error "Unknown option: $1"
+            echo "Use --help for usage information"
+            exit 1
+            ;;
+    esac
+done
+
 # Check if script is run as root (optional warning)
 if [ "$EUID" -eq 0 ]; then
     print_warning "Running as root. Consider running as a regular user for security."
 fi
 
 # Run main installation
-main "$@"
+main
