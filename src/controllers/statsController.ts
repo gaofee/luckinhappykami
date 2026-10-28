@@ -1,5 +1,6 @@
 import { Request, Response } from 'express';
 import { dbGet } from '../utils/database';
+import { beijingAfter, nowBeijing } from '../utils/time';
 
 // 获取统计数据
 export const getStats = async (req: Request, res: Response) => {
@@ -26,8 +27,8 @@ export const getStats = async (req: Request, res: Response) => {
       FROM api_keys
     `);
 
-    // 获取最近7天的数据
-    const sevenDaysAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString();
+    // 获取最近7天的数据（北京时间基准）
+    const sevenDaysAgo = beijingAfter(-7 * 24 * 60 * 60 * 1000);
 
     const recentStats = await dbGet(`
       SELECT
@@ -74,14 +75,16 @@ export const getUsageTrends = async (req: Request, res: Response) => {
   try {
     const { days = 7 } = req.query;
     const daysAgo = parseInt(days as string);
-    const startDate = new Date(Date.now() - daysAgo * 24 * 60 * 60 * 1000);
 
     const trends = [];
 
-    // 生成日期数组
+    // 生成日期数组（北京时间基准，与库中存储的北京时间对齐）
+    // 仅生成日期标签，按纯日期做 UTC 算术即可，不涉及时刻转换
+    const todayBeijing = nowBeijing().slice(0, 10); // 北京时间今天的日期 YYYY-MM-DD
     for (let i = daysAgo - 1; i >= 0; i--) {
-      const date = new Date(Date.now() - i * 24 * 60 * 60 * 1000);
-      const dateStr = date.toISOString().split('T')[0];
+      const d = new Date(todayBeijing + 'T00:00:00Z');
+      d.setUTCDate(d.getUTCDate() - i);
+      const dateStr = d.toISOString().split('T')[0];
 
       // 查询当天数据
       const dayStats = await dbGet(`

@@ -52,7 +52,7 @@ export const updateSettings = async (req: Request, res: Response) => {
 
       // 使用INSERT OR REPLACE来更新或插入设置
       await dbRun(
-        'INSERT OR REPLACE INTO settings (name, value, update_time) VALUES (?, ?, CURRENT_TIMESTAMP)',
+        "INSERT OR REPLACE INTO settings (name, value, update_time) VALUES (?, ?, datetime('now','+8 hours'))",
         [name, value]
       );
     }
@@ -117,7 +117,7 @@ export const updateSetting = async (req: Request, res: Response) => {
     }
 
     await dbRun(
-      'INSERT OR REPLACE INTO settings (name, value, update_time) VALUES (?, ?, CURRENT_TIMESTAMP)',
+      "INSERT OR REPLACE INTO settings (name, value, update_time) VALUES (?, ?, datetime('now','+8 hours'))",
       [name, value]
     );
 

@@ -754,8 +754,15 @@ const openAddCountDialog = (card: any) => {
   showAddCountDialog.value = true
 }
 
+// 库中时间为北京时间字符串（YYYY-MM-DD HH:MM:SS），显式按 UTC+8 解析
+const parseBeijing = (dateString: string) => {
+  const hasTz = /Z$|[+-]\d{2}:?\d{2}$/.test(dateString)
+  const normalized = dateString.replace(' ', 'T') + (hasTz ? '' : '+08:00')
+  return new Date(normalized)
+}
+
 const formatDate = (dateString: string) => {
-  return new Date(dateString).toLocaleString('zh-CN')
+  return parseBeijing(dateString).toLocaleString('zh-CN')
 }
 
 const maskDeviceId = (deviceId: string) => {
@@ -766,7 +773,7 @@ const maskDeviceId = (deviceId: string) => {
 }
 
 const calculateRemainingDays = (expireTimeStr: string) => {
-  const expireTime = new Date(expireTimeStr)
+  const expireTime = parseBeijing(expireTimeStr)
   const now = new Date()
   const diffTime = expireTime.getTime() - now.getTime()
   const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24))

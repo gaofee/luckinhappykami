@@ -94,7 +94,7 @@ export const login = async (req: Request, res: Response) => {
     );
 
     // 更新最后登录时间
-    await dbRun('UPDATE admins SET last_login = CURRENT_TIMESTAMP WHERE id = ?', [user.id]);
+    await dbRun("UPDATE admins SET last_login = datetime('now','+8 hours') WHERE id = ?", [user.id]);
 
     res.json({
       code: 0,

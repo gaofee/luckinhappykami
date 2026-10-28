@@ -12,6 +12,9 @@ ENV CHROMIUM_DOWNLOAD_HOST=https://npmmirror.com/mirrors/chromium-browser-snapsh
 # Set working directory
 WORKDIR /app
 
+# Set timezone to Beijing
+ENV TZ=Asia/Shanghai
+
 # Install system dependencies needed for SQLite and building
 RUN echo 'deb http://mirrors.ustc.edu.cn/debian/ bullseye main contrib non-free' > /etc/apt/sources.list && \
     echo 'deb http://mirrors.ustc.edu.cn/debian/ bullseye-updates main contrib non-free' >> /etc/apt/sources.list && \

@@ -204,9 +204,12 @@ const handleVerify = async () => {
   }
 }
 
+// 库中时间为北京时间字符串，显式按 UTC+8 解析
 const formatDate = (dateString: string | undefined) => {
   if (!dateString) return '-'
-  return new Date(dateString).toLocaleString('zh-CN')
+  const hasTz = /Z$|[+-]\d{2}:?\d{2}$/.test(dateString)
+  const normalized = dateString.replace(' ', 'T') + (hasTz ? '' : '+08:00')
+  return new Date(normalized).toLocaleString('zh-CN')
 }
 </script>
 

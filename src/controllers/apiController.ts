@@ -1,6 +1,7 @@
 import { Request, Response } from 'express';
 import { dbGet, dbAll, dbRun } from '../utils/database';
 import { createHash } from 'crypto';
+import { nowBeijing } from '../utils/time';
 
 // 生成API密钥
 function generateApiKey(): string {
@@ -105,7 +106,7 @@ export const createApiKey = async (req: Request, res: Response) => {
         description: description || '',
         status: 1,
         use_count: 0,
-        create_time: new Date().toISOString(),
+        create_time: nowBeijing(),
       },
     });
 
@@ -256,7 +257,7 @@ export const verifyApiKey = async (req: Request, res: Response) => {
 
     // 更新使用统计
     await dbRun(
-      'UPDATE api_keys SET use_count = use_count + 1, last_use_time = CURRENT_TIMESTAMP WHERE id = ?',
+      "UPDATE api_keys SET use_count = use_count + 1, last_use_time = datetime('now','+8 hours') WHERE id = ?",
       [keyData.id]
     );
 

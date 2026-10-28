@@ -6,6 +6,8 @@ services:
       dockerfile: Dockerfile
     container_name: luckinhappykami
     restart: unless-stopped
+    environment:
+      - TZ=Asia/Shanghai
     ports:
       - "3000:3000"
     env_file:

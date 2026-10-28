@@ -1,6 +1,7 @@
 import { Request, Response } from 'express';
 import { dbGet, dbAll, dbRun, dbGetCached, dbAllCached } from '../utils/database';
 import { createHash } from 'crypto';
+import { nowBeijing, beijingAfter, beijingStringToDate } from '../utils/time';
 
 // 生成卡密密钥
 function generateCardKey(): string {
@@ -55,7 +56,7 @@ export const verifyCard = async (req: Request, res: Response) => {
     }
 
     // 更新使用次数和最后使用时间
-    await dbRun('UPDATE api_keys SET use_count = use_count + 1, last_use_time = CURRENT_TIMESTAMP WHERE api_key = ?', [api_key]);
+    await dbRun("UPDATE api_keys SET use_count = use_count + 1, last_use_time = datetime('now','+8 hours') WHERE api_key = ?", [api_key]);
 
     // 获取请求数据（支持GET和POST）
     let card_key = '';
@@ -104,11 +105,11 @@ export const verifyCard = async (req: Request, res: Response) => {
       });
     }
 
-    // 检查时间卡密是否过期
+    // 检查时间卡密是否过期（存储的是北京时间，用互逆函数解析，不依赖服务器时区）
     if (card.card_type == 'time' && card.expire_time) {
       const now = new Date();
-      const expireTime = new Date(card.expire_time);
-      if (now > expireTime) {
+      const expireTime = beijingStringToDate(card.expire_time);
+      if (now.getTime() > expireTime.getTime()) {
         return res.status(403).json({
           code: 1,
           message: '此卡密已过期',
@@ -239,10 +240,10 @@ export const verifyCard = async (req: Request, res: Response) => {
         // 时间卡密处理
         let expire_time = null;
         if (card.duration > 0) {
-          expire_time = new Date(Date.now() + card.duration * 24 * 60 * 60 * 1000).toISOString().slice(0, 19).replace('T', ' ');
+          expire_time = beijingAfter(card.duration * 24 * 60 * 60 * 1000);
         }
 
-        await dbRun('UPDATE cards SET status = 1, use_time = CURRENT_TIMESTAMP, expire_time = ?, verify_method = ?, device_id = ? WHERE id = ?', [
+        await dbRun("UPDATE cards SET status = 1, use_time = datetime('now','+8 hours'), expire_time = ?, verify_method = ?, device_id = ? WHERE id = ?", [
           expire_time, verify_method, device_id, card.id
         ]);
 
@@ -252,7 +253,7 @@ export const verifyCard = async (req: Request, res: Response) => {
           data: {
             card_key: card.card_key,
             status: 1,
-            use_time: new Date().toISOString().slice(0, 19).replace('T', ' '),
+            use_time: nowBeijing(),
             expire_time: expire_time,
             card_type: 'time',
             duration: card.duration,
@@ -264,7 +265,7 @@ export const verifyCard = async (req: Request, res: Response) => {
         // 次数卡密处理，首次验证也消耗一次
         const remaining = card.total_count - 1;
 
-        await dbRun('UPDATE cards SET status = 1, use_time = CURRENT_TIMESTAMP, verify_method = ?, device_id = ?, remaining_count = ? WHERE id = ?', [
+        await dbRun("UPDATE cards SET status = 1, use_time = datetime('now','+8 hours'), verify_method = ?, device_id = ?, remaining_count = ? WHERE id = ?", [
           verify_method, device_id, remaining, card.id
         ]);
 
@@ -274,7 +275,7 @@ export const verifyCard = async (req: Request, res: Response) => {
           data: {
             card_key: card.card_key,
             status: 1,
-            use_time: new Date().toISOString().slice(0, 19).replace('T', ' '),
+            use_time: nowBeijing(),
             card_type: 'count',
             total_count: card.total_count,
             remaining_count: remaining,
@@ -348,7 +349,7 @@ export const generateCards = async (req: Request, res: Response) => {
         total_count: card_type === 'count' ? (total_count || 100) : null,
         remaining_count: card_type === 'count' ? (total_count || 100) : null,
         allow_reverify: allow_reverify !== false,
-        create_time: new Date().toISOString(),
+        create_time: nowBeijing(),
       });
     }
 
@@ -641,11 +642,11 @@ export const extendCard = async (req: Request, res: Response) => {
     let newExpireTime: string;
     if (card.expire_time) {
       // 如果已有到期时间，在现有时间基础上延长
-      const currentExpireTime = new Date(card.expire_time);
-      newExpireTime = new Date(currentExpireTime.getTime() + days * 24 * 60 * 60 * 1000).toISOString();
+      const currentExpireTime = beijingStringToDate(card.expire_time); // 北京时间字符串转回真实时刻
+      newExpireTime = beijingAfter(currentExpireTime.getTime() - Date.now() + days * 24 * 60 * 60 * 1000);
     } else {
       // 如果没有到期时间，从现在开始计算
-      newExpireTime = new Date(Date.now() + days * 24 * 60 * 60 * 1000).toISOString();
+      newExpireTime = beijingAfter(days * 24 * 60 * 60 * 1000);
     }
 
     await dbRun('UPDATE cards SET expire_time = ?, duration = duration + ? WHERE id = ?', [

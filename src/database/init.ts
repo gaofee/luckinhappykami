@@ -32,7 +32,7 @@ async function initializeDatabase() {
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         username TEXT UNIQUE NOT NULL,
         password_hash TEXT NOT NULL,
-        create_time DATETIME DEFAULT CURRENT_TIMESTAMP,
+        create_time DATETIME DEFAULT (datetime('now','+8 hours')),
         last_login DATETIME
       )
     `);
@@ -53,7 +53,7 @@ async function initializeDatabase() {
         verify_method TEXT,
         use_time DATETIME,
         expire_time DATETIME,
-        create_time DATETIME DEFAULT CURRENT_TIMESTAMP,
+        create_time DATETIME DEFAULT (datetime('now','+8 hours')),
         remark TEXT
       )
     `);
@@ -67,7 +67,7 @@ async function initializeDatabase() {
         status INTEGER DEFAULT 1,
         use_count INTEGER DEFAULT 0,
         last_use_time DATETIME,
-        create_time DATETIME DEFAULT CURRENT_TIMESTAMP,
+        create_time DATETIME DEFAULT (datetime('now','+8 hours')),
         description TEXT
       )
     `);
@@ -78,8 +78,8 @@ async function initializeDatabase() {
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         name TEXT UNIQUE NOT NULL,
         value TEXT,
-        create_time DATETIME DEFAULT CURRENT_TIMESTAMP,
-        update_time DATETIME DEFAULT CURRENT_TIMESTAMP
+        create_time DATETIME DEFAULT (datetime('now','+8 hours')),
+        update_time DATETIME DEFAULT (datetime('now','+8 hours'))
       )
     `);
 
@@ -92,7 +92,7 @@ async function initializeDatabase() {
         image_url TEXT,
         sort_order INTEGER DEFAULT 0,
         status INTEGER DEFAULT 1,
-        create_time DATETIME DEFAULT CURRENT_TIMESTAMP
+        create_time DATETIME DEFAULT (datetime('now','+8 hours'))
       )
     `);
 
@@ -105,7 +105,7 @@ async function initializeDatabase() {
         description TEXT NOT NULL,
         sort_order INTEGER DEFAULT 0,
         status INTEGER DEFAULT 1,
-        create_time DATETIME DEFAULT CURRENT_TIMESTAMP
+        create_time DATETIME DEFAULT (datetime('now','+8 hours'))
       )
     `);
 
